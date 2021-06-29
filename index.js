@@ -2,6 +2,8 @@ const Discord = require('discord.js'); //Install discord bot stuff
 
 const client = new Discord.Client(); //Creating discord bot
 
+const config = require('./config.json'); //Gets login token for channel
+
 client.once('ready', () => { //When bot is turned online (aka whe bot is ready)
     console.log('Polly is online'); //Display message in console
 });
@@ -69,4 +71,4 @@ function errorMessage(){
     message.channel.send("Incorrect format! Please use -help for instructions!");
 }
 
-client.login('ODU5MjUwOTU2NjY2NTM2MDA3.YNp90A.bzliQvBrd66i0aar-tNmDHDOHpQ');
+client.login(config.token);
