@@ -150,13 +150,24 @@ client.on('message', message => { //When message is typed
                     highestVoteCount = choiceArray[i];
                 }
             }
-            
+
             //Choice text for creation of a bar graph and default value
             var graphString = "[]";
             //Determines when to change text for bar graph
-            const voteLimit = 100;
-            if(highestVoteCount > voteLimit){
-                graphString = "|";
+            const voteLimit1 = 10;
+            const voteLimit2 = 40;
+            const voteLimit3 = 88;
+            if(highestVoteCount > voteLimit3){
+                message.channel.send("Error: Too many votes for one option for graph to format correctly!");
+            }
+            else if(highestVoteCount > voteLimit2){
+                graphString = ")";
+            }
+            else if(highestVoteCount > voteLimit1){
+                graphString = "[]";
+            }
+            else{
+                graphString = "[][][]  ";
             }
             //Stores string of graph for visual output
             var graphBar;
@@ -164,7 +175,7 @@ client.on('message', message => { //When message is typed
             //Generate bar graph text and add to embed
             for(i=0; i < optionArray.length; i++){
                 if(choiceArray[i] > 0){
-                    graphBar = "[]".repeat(choiceArray[i]);
+                    graphBar = graphString.repeat(choiceArray[i]);
                 }
                 else {
                     graphBar = "";
