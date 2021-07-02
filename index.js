@@ -142,14 +142,38 @@ client.on('message', message => { //When message is typed
 	        .setColor('#0099ff')
 	        .setTitle("Results")
 	        .setTimestamp()
-    
-            //Add choice fields to embed
+            
+            //Collect highest vote value found
+            var highestVoteCount = 0;
+            for(i=0; i < choiceArray.length; i++){
+                if(choiceArray[i] > highestVoteCount){
+                    highestVoteCount = choiceArray[i];
+                }
+            }
+            
+            //Choice text for creation of a bar graph and default value
+            var graphString = "[]";
+            //Determines when to change text for bar graph
+            const voteLimit = 100;
+            if(highestVoteCount > voteLimit){
+                graphString = "|";
+            }
+            //Stores string of graph for visual output
+            var graphBar;
+
+            //Generate bar graph text and add to embed
             for(i=0; i < optionArray.length; i++){
-                resultsEmbed.addField("Option: " + (i+1), optionArray[i] + ": " + choiceArray[i] + " votes", false);
+                if(choiceArray[i] > 0){
+                    graphBar = "[]".repeat(choiceArray[i]);
+                }
+                else {
+                    graphBar = "";
+                }
+                //Add choice fields to embed
+                resultsEmbed.addField(optionArray[i] + ": " + choiceArray[i] + " votes", "|" + graphBar, false);
             }
 
             
-
             //If a poll hasn't been created
             if(optionArray.length == 0){
                 message.channel.send("A poll must be created before voting!");
