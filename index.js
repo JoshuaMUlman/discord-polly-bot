@@ -12,6 +12,7 @@ const prefix = '-'; //Prefix to look for when message is sent
 
 var optionArray = [];
 var choiceArray = [];
+var userArray = [];
 
 client.on('message', message => { //When message is typed
     if(!message.content.startsWith(prefix) || message.author.bot) return; //If message doesn't start with - or if message was from the bot
@@ -32,6 +33,7 @@ client.on('message', message => { //When message is typed
         //Clear Arrays as a new poll is being created
         optionArray.length = 0;
         choiceArray.length = 0;
+        userArray.length = 0;
 
         //Parse input for poll title and choices and put into variable and array
         for(i=0; i < shortenedString.length; i++) {
@@ -81,7 +83,25 @@ client.on('message', message => { //When message is typed
     //For collecting answers
     if(command.toLowerCase() == "vote") {
         shortenedString = message.content.slice(6,message.content.length); //removes command (answer)
-        choiceArray[parseInt(shortenedString) - 1]++;
+    
+        //check if user has already voted
+        var userFound = false;
+        for(i=0; i < userArray.length; i++){
+            if(userArray[i] == message.author.id){
+                userFound = true;
+                break;
+            }
+        }
+        //If user has not voted yet
+        if(!userFound){
+            //Add vote
+            choiceArray[parseInt(shortenedString) - 1]++;
+            //Add voted user to array of users that already voted
+            userArray.push(message.author.id);
+        }
+        else {
+            message.channel.send("Error: You've already voted!")
+        }
     }
 
         //For displaying results
