@@ -10,6 +10,9 @@ client.once('ready', () => { //When bot is turned online (aka whe bot is ready)
 
 const prefix = '-'; //Prefix to look for when message is sent
 
+var optionArray = [];
+var choiceArray = [];
+
 client.on('message', message => { //When message is typed
     if(!message.content.startsWith(prefix) || message.author.bot) return; //If message doesn't start with - or if message was from the bot
 
@@ -18,13 +21,12 @@ client.on('message', message => { //When message is typed
 
     var delimiter = ",";
     var pollTitle;
-    var optionArray = [];
-
     var shortenedString = message.content.slice(6,message.content.length); // removes polly & space
     var delimiterCounter = 0;
     const minDelimNum = 2;
     var lastDelimPos = 0;
 
+    //For creating a poll
     if(command.toLowerCase() == "polly") {
 
         for(i=0; i < shortenedString.length; i++) {
@@ -44,31 +46,59 @@ client.on('message', message => { //When message is typed
         }
         //final option has no delimiter
         optionArray.push(shortenedString.slice(lastDelimPos + 2,shortenedString.length));
-    }
 
-    //Creation of embed
-    const pollEmbed = new Discord.MessageEmbed()
-	.setColor('#0099ff')
-	.setTitle(pollTitle)
-	.setTimestamp()
+        //Creation of parallel array for storing answers
+        //Starts at 0 votes for each spot
+        for(j=0; j < 5; j++) {
+            choiceArray[j] = 0;
+        }
+
+        //Print error message if incorrect format
+        if(delimiterCounter < minDelimNum){
+            message.channel.send("Incorrect format! Please use -help for instructions!");
+        }
+
+        //Creation of embed
+        const pollEmbed = new Discord.MessageEmbed()
+	    .setColor('#0099ff')
+	    .setTitle(pollTitle)
+	    .setTimestamp()
     
-    //Add choice fields to embed
-    for(i=0; i < optionArray.length; i++){
-        pollEmbed.addField("Option: " + (i+1), optionArray[i], false);
+        //Add choice fields to embed
+        for(i=0; i < optionArray.length; i++){
+            pollEmbed.addField("Option: " + (i+1), optionArray[i], false);
+        }
+        
+        //Send embed to discord
+        message.channel.send(pollEmbed);    
     }
 
-    //Send embed to discord
-    message.channel.send(pollEmbed);
-
-
-    if(delimiterCounter < minDelimNum){
-        errorMessage();
+    //For collecting answers
+    if(command.toLowerCase() == "vote") {
+        shortenedString = message.content.slice(6,message.content.length); //removes command (answer)
+        choiceArray[parseInt(shortenedString) + 1]++;
     }
+
+        //For displaying results
+        if(command.toLowerCase() == "results") {
+
+            //Creation of embed
+            const resultsEmbed = new Discord.MessageEmbed()
+	        .setColor('#0099ff')
+	        .setTitle("Results")
+	        .setTimestamp()
+    
+            //Add choice fields to embed
+            for(i=0; i < optionArray.length; i++){
+                resultsEmbed.addField("Option: " + (i+1), optionArray[i] + ": " + choiceArray[i] + " votes", false);
+            }
+
+            //Send embed to discord
+            message.channel.send(resultsEmbed);
+
+        }
 
 });
 
-function errorMessage(){
-    message.channel.send("Incorrect format! Please use -help for instructions!");
-}
 
 client.login(config.token);
