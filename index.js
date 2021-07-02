@@ -29,6 +29,11 @@ client.on('message', message => { //When message is typed
     //For creating a poll
     if(command.toLowerCase() == "polly") {
 
+        //Clear Arrays as a new poll is being created
+        optionArray.length = 0;
+        choiceArray.length = 0;
+
+        //Parse input for poll title and choices and put into variable and array
         for(i=0; i < shortenedString.length; i++) {
             if(shortenedString.charAt(i) == delimiter){
                 delimiterCounter++;
@@ -76,7 +81,7 @@ client.on('message', message => { //When message is typed
     //For collecting answers
     if(command.toLowerCase() == "vote") {
         shortenedString = message.content.slice(6,message.content.length); //removes command (answer)
-        choiceArray[parseInt(shortenedString) + 1]++;
+        choiceArray[parseInt(shortenedString) - 1]++;
     }
 
         //For displaying results
