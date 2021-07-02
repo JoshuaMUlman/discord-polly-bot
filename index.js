@@ -26,9 +26,13 @@ client.on('message', message => { //When message is typed
     var delimiterCounter = 0;
     const minDelimNum = 2;
     var lastDelimPos = 0;
+    var valid;
 
     //For creating a poll
     if(command.toLowerCase() == "polly") {
+
+        //Assume input is valid
+        valid = true;
 
         //Clear Arrays as a new poll is being created
         optionArray.length = 0;
@@ -62,7 +66,8 @@ client.on('message', message => { //When message is typed
 
         //Print error message if incorrect format
         if(delimiterCounter < minDelimNum){
-            message.channel.send("Incorrect format! Please use -help for instructions!");
+            message.channel.send("Incorrect format! Please view https://github.com/JoshuaMUlman/discord-polly-bot for instructions!");
+            valid = false;
         }
 
         //Creation of embed
@@ -76,8 +81,14 @@ client.on('message', message => { //When message is typed
             pollEmbed.addField("Option: " + (i+1), optionArray[i], false);
         }
         
-        //Send embed to discord
-        message.channel.send(pollEmbed);    
+        if(valid){
+            //Send embed to discord
+            message.channel.send(pollEmbed);    
+        }
+        else{
+            //Clear optionArray of junk data
+            optionArray.length = 0;
+        }
     }
 
     //For collecting answers
@@ -92,15 +103,34 @@ client.on('message', message => { //When message is typed
                 break;
             }
         }
-        //If user has not voted yet
-        if(!userFound){
+
+        var vote = parseInt(shortenedString);
+
+        //If user has not voted yet and vote is an integer and vote is in range of options
+        if(!userFound && Number.isInteger(vote) && vote <= optionArray.length){
             //Add vote
             choiceArray[parseInt(shortenedString) - 1]++;
             //Add voted user to array of users that already voted
             userArray.push(message.author.id);
         }
-        else {
+        //If a poll hasn't been created
+        else if(optionArray.length == 0){
+            message.channel.send("A poll must be created before voting!");
+        }
+        //If vote is not a number
+        else if(!Number.isInteger(vote)){
+            message.channel.send("Vote must be a number!");
+        }
+        //If vote is not in range
+        else if(!(vote <= optionArray.length)){
+            message.channel.send("Vote must be in range of available options!");
+        }
+        //If user already voted
+        else if(userFound){
             message.channel.send("Error: You've already voted!")
+        }
+        else{
+            message.channel.send("Error: Unknown error!")
         }
     }
 
@@ -118,12 +148,19 @@ client.on('message', message => { //When message is typed
                 resultsEmbed.addField("Option: " + (i+1), optionArray[i] + ": " + choiceArray[i] + " votes", false);
             }
 
-            //Send embed to discord
-            message.channel.send(resultsEmbed);
+            
+
+            //If a poll hasn't been created
+            if(optionArray.length == 0){
+                message.channel.send("A poll must be created before voting!");
+            }
+            else{
+                //Send embed to discord
+                message.channel.send(resultsEmbed);
+            }
 
         }
 
 });
-
 
 client.login(config.token);
