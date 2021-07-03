@@ -60,7 +60,7 @@ client.on('message', message => { //When message is typed
 
         //Creation of parallel array for storing answers
         //Starts at 0 votes for each spot
-        for(j=0; j < 5; j++) {
+        for(j=0; j < optionArray.length; j++) {
             choiceArray[j] = 0;
         }
 
